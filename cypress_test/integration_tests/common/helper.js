@@ -462,7 +462,13 @@ function reload(fileName, subFolder, noFileCopy, subsequentLoad) {
 	return loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad);
 }
 
-function beforeAll(fileName, subFolder, noFileCopy, subsequentLoad) {
+function beforeAll(fileName, subFolder, noFileCopy, subsequentLoad, testName) {
+	var req = new XMLHttpRequest();
+	var url = cy.window().location.protocol + '//' + cy.window().location.host + '/loleaflet/' + Cypress.env('WSD_VERSION_HASH') + '/' + fileName + '/' + testName;
+	req.open('POST', url, true);
+	req.setRequestHeader('Content-type','application/json; charset=utf-8');
+	req.send('jserror >>> ' + testName);
+
 	return loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad);
 }
 
