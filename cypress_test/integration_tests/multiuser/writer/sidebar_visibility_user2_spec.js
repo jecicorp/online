@@ -3,10 +3,11 @@
 var helper = require('../../common/helper');
 
 describe.skip('Sidebar visibility: user-2.', function() {
-	var testFileName = 'sidebar_visibility.odt';
+	var origTestFileName = 'sidebar_visibility.odt';
+	var testFileName;
 
 	beforeEach(function() {
-		helper.beforeAll(testFileName, 'writer', true);
+		testFileName = helper.beforeAll(origTestFileName, 'writer', true);
 	});
 
 	afterEach(function() {

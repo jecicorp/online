@@ -12,7 +12,14 @@ var mobileWizardIdleTime = 1250;
 //              then we intend to open the same document without modification.
 function loadTestDocNoIntegration(fileName, subFolder, noFileCopy) {
 	cy.log('Loading test document with a local build - start.');
-	cy.log('Param - fileName: ' + fileName);
+
+	var newFileName = fileName;
+	if (noFileCopy !== true) {
+		var randomName = (Math.random() + 1).toString(36).substring(7);
+		newFileName = randomName + '_' + fileName;
+	}
+
+	cy.log('Param - fileName: ' + fileName + ' -> ' + newFileName);
 	cy.log('Param - subFolder: ' + subFolder);
 	cy.log('Param - noFileCopy: ' + noFileCopy);
 
@@ -24,12 +31,14 @@ function loadTestDocNoIntegration(fileName, subFolder, noFileCopy) {
 				sourceDir: Cypress.env('DATA_FOLDER'),
 				destDir: Cypress.env('DATA_WORKDIR'),
 				fileName: fileName,
+				destFileName: newFileName,
 			});
 		} else {
 			cy.task('copyFile', {
 				sourceDir: Cypress.env('DATA_FOLDER') + subFolder + '/',
 				destDir: Cypress.env('DATA_WORKDIR') + subFolder + '/',
 				fileName: fileName,
+				destFileName: newFileName,
 			});
 		}
 	}
@@ -46,12 +55,12 @@ function loadTestDocNoIntegration(fileName, subFolder, noFileCopy) {
 		URI += '/loleaflet/' +
 			Cypress.env('WSD_VERSION_HASH') +
 			'/loleaflet.html?lang=en-US&file_path=file://' +
-			Cypress.env('DATA_WORKDIR') + fileName;
+			Cypress.env('DATA_WORKDIR') + newFileName;
 	} else {
 		URI += '/loleaflet/' +
 			Cypress.env('WSD_VERSION_HASH') +
 			'/loleaflet.html?lang=en-US&file_path=file://' +
-			Cypress.env('DATA_WORKDIR') + subFolder + '/' + fileName;
+			Cypress.env('DATA_WORKDIR') + subFolder + '/' + newFileName;
 	}
 
 	cy.visit(URI, {
@@ -60,6 +69,7 @@ function loadTestDocNoIntegration(fileName, subFolder, noFileCopy) {
 		}});
 
 	cy.log('Loading test document with a local build - end.');
+	return newFileName;
 }
 
 // Loading the test document inside a Nextcloud integration.
@@ -290,10 +300,11 @@ function loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad) {
 		cy.viewport('iphone-6');
 	});
 
+	var destFileName = fileName;
 	if (Cypress.env('INTEGRATION') === 'nextcloud') {
 		loadTestDocNextcloud(fileName, subFolder, subsequentLoad);
 	} else {
-		loadTestDocNoIntegration(fileName, subFolder, noFileCopy);
+		destFileName = loadTestDocNoIntegration(fileName, subFolder, noFileCopy);
 	}
 
 	// Wait for the document to fully load
@@ -333,6 +344,7 @@ function loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad) {
 	}
 
 	cy.log('Loading test document - end.');
+	return destFileName;
 }
 
 // Assert that NO keyboard input is accepted (i.e. keyboard should be HIDDEN).
@@ -447,11 +459,11 @@ function matchClipboardText(regexp) {
 // said changes were preserved in the document upon closing.
 function reload(fileName, subFolder, noFileCopy, subsequentLoad) {
 	closeDocument(fileName, '');
-	loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad);
+	return loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad);
 }
 
 function beforeAll(fileName, subFolder, noFileCopy, subsequentLoad) {
-	loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad);
+	return loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad);
 }
 
 function afterAll(fileName, testState) {
