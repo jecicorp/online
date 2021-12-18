@@ -10,11 +10,12 @@ var mobileWizardIdleTime = 1250;
 //              By default, we create a copy to have a clear test document
 //              but when we open the same document with another user (multi-user tests),
 //              then we intend to open the same document without modification.
-function loadTestDocNoIntegration(fileName, subFolder, noFileCopy) {
+// noRename - whether or not to give the file a unique name, if noFileCopy is false.
+function loadTestDocNoIntegration(fileName, subFolder, noFileCopy, noRename) {
 	cy.log('Loading test document with a local build - start.');
 
 	var newFileName = fileName;
-	if (noFileCopy !== true) {
+	if (noRename !== true) {
 		var randomName = (Math.random() + 1).toString(36).substring(7);
 		newFileName = randomName + '_' + fileName;
 	}
@@ -288,7 +289,8 @@ function waitForInterferingUser() {
 // subsequentLoad - whether we load a test document for the first time in the
 //                  test case or not. It's important for nextcloud because we need to sign in
 //                  with the username + password only for the first time.
-function loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad) {
+// noRename - whether or not to give the file a unique name, if noFileCopy is false.
+function loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad, noRename) {
 	cy.log('Loading test document - start.');
 	cy.log('Param - fileName: ' + fileName);
 	cy.log('Param - subFolder: ' + subFolder);
@@ -304,7 +306,7 @@ function loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad) {
 	if (Cypress.env('INTEGRATION') === 'nextcloud') {
 		loadTestDocNextcloud(fileName, subFolder, subsequentLoad);
 	} else {
-		destFileName = loadTestDocNoIntegration(fileName, subFolder, noFileCopy);
+		destFileName = loadTestDocNoIntegration(fileName, subFolder, noFileCopy, noRename);
 	}
 
 	// Wait for the document to fully load
@@ -462,14 +464,15 @@ function reload(fileName, subFolder, noFileCopy, subsequentLoad) {
 	return loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad);
 }
 
-function beforeAll(fileName, subFolder, noFileCopy, subsequentLoad, testName) {
+// noRename - whether or not to give the file a unique name, if noFileCopy is false.
+function beforeAll(fileName, subFolder, noFileCopy, subsequentLoad, noRename, testName) {
 	var req = new XMLHttpRequest();
 	var url = cy.window().location.protocol + '//' + cy.window().location.host + '/loleaflet/' + Cypress.env('WSD_VERSION_HASH') + '/' + fileName + '/' + testName;
 	req.open('POST', url, true);
 	req.setRequestHeader('Content-type','application/json; charset=utf-8');
 	req.send('jserror >>> ' + testName);
 
-	return loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad);
+	return loadTestDoc(fileName, subFolder, noFileCopy, subsequentLoad, noRename);
 }
 
 function afterAll(fileName, testState) {

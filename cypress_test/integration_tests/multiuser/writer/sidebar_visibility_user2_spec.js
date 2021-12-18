@@ -7,7 +7,8 @@ describe.skip('Sidebar visibility: user-2.', function() {
 	var testFileName;
 
 	beforeEach(function() {
-		testFileName = helper.beforeAll(origTestFileName, 'writer', true);
+		var noRename = true;
+		testFileName = helper.beforeAll(origTestFileName, 'writer', undefined, undefined, noRename);
 	});
 
 	afterEach(function() {

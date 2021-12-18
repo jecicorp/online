@@ -7,7 +7,8 @@ describe('Simultaneous typing: user-1.', function() {
 	var testFileName;
 
 	beforeEach(function() {
-		testFileName = helper.beforeAll(origTestFileName, 'writer');
+		var noRename = true;
+		testFileName = helper.beforeAll(origTestFileName, 'writer', undefined, undefined, noRename);
 	});
 
 	afterEach(function() {
